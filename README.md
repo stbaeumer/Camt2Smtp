@@ -2,6 +2,8 @@
 
 Camt2Smtp informiert mich über jede Buchung auf meinem Girokonto per Mail und summiert im Mail-Body alle Beträge gleicher, individuell vergebener Kategorien je Kalenderjahr auf.
 
+![Camt](Camt2Smtp/Bilder/aufsummiert.png?raw=true)
+
 In Kombination mit FairEmail und Posteo werden alle eigehenden Mails regelbasiert in meiner IMAP-Orderstuktur verschlüsselt abgelegt. 
 
 Zusammen mit eingescannten Verträgen wird Posteo zum vollwertigen Ersatz eines Online-Laufwerks und auch eines Passwortmanagers.
@@ -13,8 +15,8 @@ Für jedes Fahrrad erstelle ich einen IMAP-Ordner. Die digitale Kopie die Rechnu
 
 ## Schritte der Verarbeitung:
 
-1. Eine CAMT-Datei wird vom Anwender bei seiner Bank/Sparkasse heruntergeladen. 
-1. Camt2Smtp liest (z.B. täglich um 20 Uhr) alle CAMT-Dateien mit allen Buchungen ein.
+1. Eine CAMT-Datei wird vom Anwender bei seiner Bank/Sparkasse heruntergeladen und im Ordner der Wahl abgelegt. ![Camt](Camt2Smtp/Bilder/camt_v2.png?raw=true)
+1. Camt2Smtp liest (z.B. als Task täglich um 20 Uhr) alle CAMT-Dateien mit allen Buchungen ein.
 2. Jede Buchung wird (automatisch) nach Anwenderwünschen kategorisiert.
 3. Für jede Buchung wird eine Mail an das gewünschte Mail-Postfach ausgelöst. Im Body der Mail werden alle Buchungen der selben Katgeorie für die Kalenderjahre aufsummiert.
 4. Die Mail kann dann über Regeln in einen gewünschten IMAP-Ordner verschoben. FairEmail ist unter Android eine hervorragend App. 
