@@ -114,7 +114,7 @@ namespace camt2smtp
             }
             else
             {
-                Console.WriteLine("Ihre Paramter:");
+                Console.WriteLine("Ihre Parameter:");
                 for (int i = 0; i < args.Length; i++)
                 {
                     var parameter = new List<string>() { "-pfad", "-p", "-u", "-s", "-port", "c" };
