@@ -30,12 +30,11 @@ namespace camt2smtp
         {
             try
             {
-                Console.WriteLine("camt2posteo");
+                Console.WriteLine("camt2smtp");
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
-                Console.WriteLine("Wenn zwei Regeln sich ausschließlich im Betrag unterscheiden, dann liegt eine Splitbuchung vor.");
-
+                
                 PrüfeParameter(args);
 
                 SmtpClient = BaueSmtpClient(SmtpUser, SmtpPassword, SmtpServer, SmtpPort);
@@ -166,7 +165,7 @@ namespace camt2smtp
                         if (!parameter.Contains(args[i + 1]))
                         {
                             Camt = args[i + 1];
-                            Console.WriteLine(" Namensbestandteil, dan dem CAMT-Dateien erkannt werden: " + Camt);
+                            Console.WriteLine(" Namensbestandteil, an dem CAMT-Dateien erkannt werden: " + Camt);
                         }
                     }
                 }
@@ -181,7 +180,7 @@ namespace camt2smtp
         {
             Console.WriteLine("");
             Console.WriteLine("Hilfe:");
-            Console.WriteLine("camt2Posteo liest die Datei *CSV-CAMT V2* aus und mailt jede einzelne Buchung an die angegebene Posteo-Adresse.");
+            Console.WriteLine("camt2smtp liest die Datei *CSV-CAMT V2* aus und mailt jede einzelne Buchung an die angegebene IMAP-Adresse.");
             Console.WriteLine("Siehe auch https://github.com/stbaeumer/camt2smtp");
 
             if (smtpServer == "")
@@ -242,7 +241,7 @@ namespace camt2smtp
         {
             try
             {
-                string betreff = "camt2posteo-Meldung";
+                string betreff = "camt2smtp-Meldung";
                 string body = regelszeile;
 
                 MailMessage mm = new MailMessage(smtpUser, smtpUser, betreff, body)
@@ -273,8 +272,8 @@ namespace camt2smtp
         {
             try
             {
-                string betreff = "camt2posteo Sicherung";
-                string body = "camt2posteo Sicherung";
+                string betreff = "camt2smtp Sicherung";
+                string body = "camt2smtp Sicherung";
 
                 MailMessage mailMessage = new MailMessage(smtpUser, smtpUser, betreff, body)
                 {

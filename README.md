@@ -40,10 +40,9 @@ Bei Posteo (und bestimmt auch anderen Mail-Providern) kann die Eingangsverschlü
 
 Mit FairEmail oder Mailvelope oder anderen Programmen können die Nachrichten dann wieder entschlüsselt werden. 
 
-Man kann dann z.B. auch Fotos von Verträgen verschlüsselt an die eigene Mail-Adresse senden. 
+### Sind Splitbuchungen möglich?
 
-Jeder Vertrag und alle seine zugehörigen Buchungen liegen werden dann im selben IMAP-Ordner archiviert.
-
+Ja, wenn zwei Regeln sich ausschließlich im Betrag unterscheiden, dann liegt eine Splitbuchung vor.;
 
 
 

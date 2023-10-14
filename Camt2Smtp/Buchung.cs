@@ -47,7 +47,7 @@ namespace camt2smtp
         {
         }
 
-        internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, Regeln verträge, Buchungen alleKontobewegungen, SmtpClient smtpClient, string smtpUser)
+        internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, Regeln regeln, Buchungen alleKontobewegungen, SmtpClient smtpClient, string smtpUser)
         {
             string betreff = (Regel != null && Regel.Kategorien != null && Regel.Kategorien != "" ? " [" + Regel.Kategorien.Split(',')[0] + "] " : "") + " (" + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + ") " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + "|") + Verwendungszweck).Substring(0, Math.Min(Verwendungszweck.Length, 60)) + "|" + string.Format("{0:#.00}", Betrag) + " €";
             string body = this.Auftragskonto;
@@ -73,7 +73,7 @@ namespace camt2smtp
             buchung.Vertragsname = Regel.Kategorien;
             protokolldateiBuchungen.Add(buchung);
             body += RenderDieseBuchung();
-            body += BuchungenZuDiesenVerträgen2List(verträge, protokolldateiBuchungen, buchung);
+            body += BuchungenZuDiesenRegeln2List(regeln, protokolldateiBuchungen, buchung);
 
             Console.WriteLine("Betreff: " + betreff.Replace(" €", " EUR"));
 
@@ -120,7 +120,7 @@ namespace camt2smtp
             }
         }
 
-        private string BuchungenZuDiesenVerträgen2List(Regeln verträge, Buchungen protokolldateiBuchungen, Buchung buchung)
+        private string BuchungenZuDiesenRegeln2List(Regeln regeln, Buchungen protokolldateiBuchungen, Buchung buchung)
         {
             var z = @"<table border='1'>";
 
@@ -183,7 +183,7 @@ namespace camt2smtp
                 throw ex;
             }
         }
-        private Regeln FilterInfragekommendeVerträge(string eigenschaft, List<Regel> infragekommendeRegeln)
+        private Regeln FilterInfragekommendeRegeln(string eigenschaft, List<Regel> infragekommendeRegeln)
         {
             var regeln = new Regeln();
 
@@ -248,7 +248,7 @@ namespace camt2smtp
                     "Buchungstext"
                 })
                 {
-                    infragekommendeRegeln = FilterInfragekommendeVerträge(eigenschaft, infragekommendeRegeln);
+                    infragekommendeRegeln = FilterInfragekommendeRegeln(eigenschaft, infragekommendeRegeln);
 
                     if (infragekommendeRegeln.Count == 1)
                     {
@@ -260,7 +260,7 @@ namespace camt2smtp
                 }
                 if (infragekommendeRegeln.Count >= 2)
                 {
-                    // Bei mehreren infragekommenden Verträgen muss auf Splitbuchung geprüft werden.
+                    // Bei mehreren infragekommenden Regeln muss auf Splitbuchung geprüft werden.
                     // Es liegt eine Splitbuchung vor, wenn nur der Betrag sich unterscheidet.
 
                     if (
@@ -284,7 +284,7 @@ namespace camt2smtp
                     }
                     else
                     {
-                        Console.WriteLine("Keine eindeutige Zuordnung: Es kommen " + infragekommendeRegeln.Count + " Verträge infrage.");
+                        Console.WriteLine("Keine eindeutige Zuordnung: Es kommen " + infragekommendeRegeln.Count + " Regeln infrage.");
                     }
                 }
                 else
@@ -293,10 +293,6 @@ namespace camt2smtp
                 }
 
                 return "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext + "\"<br>";
-
-                // In der Rückerstattung von Eprimo ist die Mandantsrefnr. in der der Kundenref verschlüsselt.
-                // Bei eprimo wird auf die Mandantsreferenznummer geprüft, weil dort zwei Verträge bestehen.
-                // Bei den Deka-Fonds ist die Eindeutigkeit in Mandantenreferenz und Verwendungszweck.
             }
             catch (Exception e)
             {

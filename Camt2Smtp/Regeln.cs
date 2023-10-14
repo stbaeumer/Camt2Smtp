@@ -71,7 +71,7 @@ namespace camt2smtp
                         {
                         }
                     }
-                    Console.WriteLine("Anzahl der Verträge: " + this.Count);
+                    Console.WriteLine("Anzahl der Regeln: " + this.Count);
                 }
             }
             catch (Exception ex)
