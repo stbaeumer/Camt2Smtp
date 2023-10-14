@@ -14,6 +14,21 @@ Camt2Smtp informiert den Anwender über jede Buchung auf seinem Girokonto per Mai
 
 ## FAQ
 
+### Für wen ist das Programm?
+
+Wer folgende Fragen bejahen kann, ist Zielgruppe: 
+
+* Ich will über Buchungen per Mail informiert werden
+* Ich will Buchungen nach eigenen Wünschen kategorisieren und über Kategorien aufsummieren lassen
+* Ich habe einen IMAP-Account, auf dem ich unendlich viele Ordner erstellen kann.
+* Meine Mails liegen verschlüsselt in meinem IMAP-Account
+* Ich archiviere wichtige Unterlagen in meinem IMAP-Account.
+ 
+#### Beispielhafter Anwendungsfall:
+
+Für jedes Fahrrad erstelle ich einen IMAP-Ordner. In dem Ordner liegt als digitale Kopie die Rechnung, der Fahrradpass, Fotos von Anbauteilen usw. 
+Über eine Regel in FairEmail werden alle Mails mit der Kategorie "Riese&Müller" in diesen Ordner einsortiert und  Hinzukommen alle Kontobewegungen vom Kauf über Reparaturen und Ersatzteilkäufe.  
+
 ### Warum muss ich erst die CAMT-Datei herunterladen? Andere Programme können auch direkt auf Girokonten zugreifen.
 
 Mir scheint das (auch aus Sicherheitsgründen) eine gute und schnelle Lösung zu sein. 
