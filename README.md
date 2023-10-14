@@ -81,6 +81,10 @@ Der Inhalt der Meldung wird markiert und kopiert, ...
 
 Beispiele für Regeln im Editor:
 
-![Regeln](Camt2Smtp/Bilder/regeln_beispiele.png?raw=true)
+![Regeln](Camt2Smtp/Bilder/Regeln_beispiele.png?raw=true)
 
+### Erfolgreiche Buchungen
 
+Erfolgreich abgearbeitete Buchungen werden in der Datei protokoll.csv abgelegt.
+
+![Protokoll](Camt2Smtp/Bilder/protokoll.png?raw=true)
