@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Web;
 
 namespace camt2smtp
@@ -16,6 +17,7 @@ namespace camt2smtp
         public string Mandatsreferenz { get; internal set; }
         public string Kundenreferenz { get; internal set; }
         public string Buchungstext { get; internal set; }
+        public string Sortierkriterium { get; internal set; }
 
         public Regel(string kundenreferenz, string mandantsreferenz, string kategorien, string indikatorVerwendungszweck, string indikatorIban, string indikatorBeguenstigter, string pfad, decimal betrag)
         {
@@ -45,6 +47,22 @@ namespace camt2smtp
             Verwendungszweck = item.Verwendungszweck;
             Iban = item.Iban;
             Betrag = item.Betrag;
+        }
+
+        internal void getSortierkriterium()
+        {
+            // Es wird das zweite Element in den Kategorien zum Sortieren verwendet
+
+            var x = Kategorien.Split(',');
+
+            if (x.Length == 1)
+            {
+                this.Sortierkriterium = x[0];
+            }
+            if (x.Length > 1)
+            {
+                this.Sortierkriterium = x[1];
+            }
         }
     }
 }

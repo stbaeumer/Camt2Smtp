@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -27,7 +28,7 @@ namespace camt2smtp
 
                     File.WriteAllText(pfad + datei, kopfzeile);
                 }
-
+                
                 using (StreamReader streamReader = new StreamReader(pfad + "\\" + datei))
                 {
                     var überschrift = streamReader.ReadLine();
@@ -47,6 +48,7 @@ namespace camt2smtp
                                 try
                                 {
                                     regel.Kategorien = x[0];
+                                    regel.getSortierkriterium();
                                     regel.Kundenreferenz = x[1];
                                     regel.Mandatsreferenz = x[2];
                                     regel.Verwendungszweck = x[3];
@@ -71,7 +73,6 @@ namespace camt2smtp
                         {
                         }
                     }
-                    Console.WriteLine("Anzahl der Regeln: " + this.Count);
                 }
             }
             catch (Exception ex)
