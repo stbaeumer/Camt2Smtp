@@ -231,7 +231,7 @@ namespace camt2smtp
         }
 
         internal string GetRegel(string benutzer, Regeln regeln, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
-        {
+        {            
             try
             {
                 Console.Write((this.BeguenstigterZahlungspflichtiger.Substring(0, Math.Min(20, this.BeguenstigterZahlungspflichtiger.Length)) + "|" + this.Verwendungszweck.Substring(0, Math.Min(50, this.Verwendungszweck.Length)) + " ...").PadRight(90, ' '));
@@ -250,7 +250,7 @@ namespace camt2smtp
                 {
                     infragekommendeRegeln = FilterInfragekommendeRegeln(eigenschaft, infragekommendeRegeln);
 
-                    if (infragekommendeRegeln.Count == 1)
+                    if (infragekommendeRegeln.Count == 1 && infragekommendeRegeln[0].Kategorien != "?????")
                     {
                         this.Regel = infragekommendeRegeln[0];
                         Console.WriteLine(Regel.Kategorien);
@@ -291,8 +291,20 @@ namespace camt2smtp
                 {
                     Console.WriteLine("keine Zuordnung");
                 }
+                var zeile = "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext;
 
-                return "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext + "\"<br>";
+                if (!(from r in regeln 
+                      where r.Kategorien == "?????"
+                      where r.Kundenreferenz == Kundenreferenz
+                      where r.Mandatsreferenz == Mandatsreferenz
+                      where r.Verwendungszweck == Verwendungszweck
+                      where r.Iban == Iban
+                      where r.BeguenstigterZahlungspflichtiger == BeguenstigterZahlungspflichtiger
+                      select r).Any())
+                {
+                    File.AppendAllText(pfad + "\\regeln.csv", zeile);
+                }
+                return zeile + "\"<br>";
             }
             catch (Exception e)
             {

@@ -66,7 +66,7 @@ namespace camt2smtp
                 }
 
                 if (offeneKontobewegungen.Length > 0)
-                {
+                {                    
                     SendeMail(Benutzer, offeneKontobewegungen, SmtpClient, SmtpUser);
                 }
 
@@ -242,7 +242,7 @@ namespace camt2smtp
             try
             {
                 string betreff = "camt2smtp-Meldung";
-                string body = regelszeile;
+                string body = "Der Datei " + Pfad + @"\regeln.csv wurde(n) folgende Zeile(n) hinzugefügt. Bitte ersetzen Sie die ????? durch eine oder mehrere kommagetrennte Kategorien. Wählen Sie die Eigenschaften so, dass Mails an diesen Empfänger direkt erkannt werden.</br></br>" + regelszeile;
 
                 MailMessage mm = new MailMessage(smtpUser, smtpUser, betreff, body)
                 {
