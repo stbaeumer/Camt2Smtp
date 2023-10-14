@@ -44,6 +44,43 @@ Mit FairEmail oder Mailvelope oder anderen Programmen können die Nachrichten da
 
 Ja, wenn zwei Regeln sich ausschließlich im Betrag unterscheiden, dann liegt eine Splitbuchung vor.;
 
+## Erläuterungen mit Bildern 
 
+### Das Programm wird (z.B. täglich mit einem Task) gestartet
+Die eingegebenen Parameter werden angezeigt. Das Programm speichert intern keine Daten, wie z.B. das Passwort. Alles wird als Parameter bei der Ausführung übergeben. 
+
+![Konsole](Camt2Smtp/Bilder/Parameter.png?raw=true)
+
+Die Konsolenausgabe zeigt: Es wurden bisher 12 CAMT-Dateien heruntergeladen. Alle werden eingelesen. Eine Buchung mit der Kategorie "Arzt,Gesundheit,ArztrechnungenMinusErstattungen" wird ausgeführt. Der Betreff der Mail wird angezeigt. In eckigen Klammern steht die erste Kategorie, anhand derer Fairemail die Zurodnung in einen IMAP-Ordner vornimmt.
+
+![Konsole](Camt2Smtp/Bilder/console.png?raw=true)
+
+### Fairemail wartet auf eingehende Mails.
+Alle Ordner sind zugeklappt. 
+
+![Fairemail](Camt2Smtp/Bilder/fairemail_zugeklappt.png?raw=true)
+
+### Eine Abbuchung ist erfolgt.
+Der Ordner klappt sich auf und zeigt, dass eine neue Abbuchung (also eine ungelesene Mail) vorliegt. Im selben Ordner liegen auch alle Emails rund um den Vertrag. Mit Fairemail kann sogar eine Kündigung zum gewünschten Termin angezeigt werden.
+
+![fairemail](Camt2Smtp/Bilder/fairemail_neue_abbuchung.png?raw=true)
+
+### Falls Camt2Smtp keine Regel zuordnen kann.
+
+Wenn Camt2Smtp einer Buchung keine Regel zuordnen kann, wird eine Meldung ausgelöst, die dann ebenfalls per Mail verschickt wird.
+
+![Meldung](Camt2Smtp/Bilder/meldung.png?raw=true)
+
+Der Inhalt der Meldung wird markiert und kopiert, ... 
+
+![Meldung](Camt2Smtp/Bilder/meldung_geoeffnet_markiert.png?raw=true)
+
+... um anschließend in der Datei regeln.csv angefügt zu werden. Die Fragezeichen werden durch Kategorien ersetzt. Beim nächsten Start von Camt2smtp wird die Regel auf diese Buchung angewendet.
+
+![Regeln](Camt2Smtp/Bilder/regeln.png?raw=true)
+
+Beispiele für Regeln im Editor:
+
+![Regeln](Camt2Smtp/Bilder/regeln_beispiele.png?raw=true)
 
 
