@@ -27,7 +27,7 @@ Für jedes Fahrrad erstelle ich einen IMAP-Ordner. Die digitale Kopie die Rechnu
 
 Camt2Smtp wird wie folgt aufgerufen: 
 
-> camt2smtp.exe -pfad MeinPfadZudenCamtDateien -p MeinSmtpPasswort -u MeinSmtpUsername -s MeinSmptServer -port MeinSmtpPort -c NamensbestandteilDerCamtDateien
+``camt2smtp.exe -pfad MeinPfadZudenCamtDateien -p MeinSmtpPasswort -u MeinSmtpUsername -s MeinSmptServer -port MeinSmtpPort -c NamensbestandteilDerCamtDateien``
 
 Mit dem NamensbestandteilDerCamtDateien ist derjenige Teil des Namens aller CAMT-Dateien gemeint, anhand dessen Camt2Smtp die CAMT-Dateien identifizieren kann. Schauen Sie auf den Namen der heruntergeladen CAMT-Dateien Ihrer Bank. Wenn die Dateien beispielsweise wie folgt heißen
 
