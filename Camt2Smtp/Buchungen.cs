@@ -181,7 +181,7 @@ namespace camt2smtp
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Erfolgreiche Buchungen " + camtDatei + ": " + zähler);
+                                    Console.WriteLine("Soll-Buchungen " + camtDatei + ": " + zähler);
                                     break;
                                 }
                             }
