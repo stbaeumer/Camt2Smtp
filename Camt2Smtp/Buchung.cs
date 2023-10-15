@@ -49,7 +49,8 @@ namespace camt2smtp
 
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, Regeln regeln, Buchungen alleKontobewegungen, SmtpClient smtpClient, string smtpUser)
         {
-            string betreff = (Regel != null && Regel.Kategorien != null && Regel.Kategorien != "" ? " [" + Regel.Kategorien.Split(',')[0] + "] " : "") + " (" + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + ") " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + "|") + Verwendungszweck).Substring(0, Math.Min(Verwendungszweck.Length, 60)) + "|" + string.Format("{0:#.00}", Betrag) + " €";
+            string b = (Regel != null && Regel.Kategorien != null && Regel.Kategorien != "" ? " [" + Regel.Kategorien.Split(',')[0] + "] " : "") + " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | ") + Verwendungszweck);
+            string betreff = b.Substring(0, Math.Min(b.Length, 110)) + " | " + string.Format("{0:#.00}", Betrag) + " €";
             string body = this.Auftragskonto;
 
             var buchung = new Buchung();
