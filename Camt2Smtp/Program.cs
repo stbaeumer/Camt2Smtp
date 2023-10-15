@@ -31,6 +31,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
+                Console.WriteLine("Version 20231015" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
