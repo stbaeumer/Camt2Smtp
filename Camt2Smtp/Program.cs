@@ -23,8 +23,8 @@ namespace camt2smtp
         public static string SmtpPort = "";
         public static string Camt = "";
         public static SmtpClient SmtpClient;
-        public static Buchungen ProtokollierteBuchungen;
-        public static Buchungen CsvKontobewegungen;
+        public static Buchungen IstBuchungen;
+        public static Buchungen SollBuchungen;
 
         static void Main(string[] args)
         {
@@ -44,25 +44,25 @@ namespace camt2smtp
 
                 List<string> camtDateien = PrüfeDatein(Benutzer, Pfad, Camt);
 
-                ProtokollierteBuchungen = new Buchungen(Pfad + @"\protokoll.csv");
+                IstBuchungen = new Buchungen(Pfad + @"\protokoll.csv");
                 var regeln = new Regeln(Pfad);
-                CsvKontobewegungen = new Buchungen(camtDateien, regeln);
+                SollBuchungen = new Buchungen(camtDateien, regeln);
 
                 Sicherung(Pfad, SmtpClient, SmtpUser);
 
                 var offeneKontobewegungen = "";
 
-                foreach (var csvkontobewegung in CsvKontobewegungen)
+                foreach (var csvkontobewegung in SollBuchungen)
                 {
                     // Nur wenn eine Buchung noch nicht durchgeführt wurde... 
 
-                    if (!(from protokollierteBuchung in ProtokollierteBuchungen
+                    if (!(from protokollierteBuchung in IstBuchungen
                           where protokollierteBuchung.Verwendungszweck == csvkontobewegung.Verwendungszweck
                           where protokollierteBuchung.Buchungstag.Date == csvkontobewegung.Buchungstag.Date
                           where protokollierteBuchung.BeguenstigterZahlungspflichtiger == csvkontobewegung.BeguenstigterZahlungspflichtiger
                           select protokollierteBuchung).Any())
                     {
-                        offeneKontobewegungen += csvkontobewegung.GetRegel(Benutzer, regeln, Pfad, ProtokollierteBuchungen, CsvKontobewegungen, SmtpClient, SmtpUser);
+                        offeneKontobewegungen += csvkontobewegung.GetRegel(Benutzer, regeln, Pfad, IstBuchungen, SollBuchungen, SmtpClient, SmtpUser);
                     }
                 }
 
