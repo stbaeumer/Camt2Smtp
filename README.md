@@ -16,12 +16,27 @@ Für jedes Fahrrad erstelle ich einen IMAP-Ordner. Die digitale Kopie die Rechnu
 ## Schritte der Verarbeitung:
 
 1. Eine CAMT-Datei wird vom Anwender bei seiner Bank/Sparkasse heruntergeladen und im Ordner der Wahl abgelegt. ![Camt](Camt2Smtp/Bilder/camt_v2.png?raw=true)
-1. Camt2Smtp liest (z.B. als Task täglich um 20 Uhr) alle CAMT-Dateien mit allen Buchungen ein.
+1. Camt2Smtp wird unter Angabe aller geforderten Parameter (z.B. als Task täglich um 20 Uhr) aufgerufen und liest sodann alle CAMT-Dateien mit allen Buchungen ein.
 2. Jede Buchung wird (automatisch) nach Anwenderwünschen kategorisiert.
 3. Für jede Buchung wird eine Mail an das gewünschte Mail-Postfach ausgelöst. Im Body der Mail werden alle Buchungen der selben Katgeorie für die Kalenderjahre aufsummiert.
 4. Die Mail kann dann über Regeln in einen gewünschten IMAP-Ordner verschoben. FairEmail ist unter Android eine hervorragend App. 
 
 ## FAQ
+
+### Wie heißen die Parameter?
+
+Camt2Smtp wird wie folgt aufgerufen: 
+
+> camt2smtp.exe -pfad MeinPfadZudenCamtDateien -p MeinSmtpPasswort -u MeinSmtpUsername -s MeinSmptServer -port MeinSmtpPort -c NamensbestandteilDerCamtDateien
+
+Mit dem NamensbestandteilDerCamtDateien ist derjenige Teil des Namens aller CAMT-Dateien gemeint, anhand dessen Camt2Smtp die CAMT-Dateien identifizieren kann. Schauen Sie auf den Namen der heruntergeladen CAMT-Dateien Ihrer Bank. Wenn die Dateien beispielsweise wie folgt heißen
+
+> 20231013-12345678-umsatz.csv
+
+> 20231014-12345678-umsatz.csv
+
+dann ist der Namensbestandteil ``-umsatz`` .
+
 
 ### Für wen ist das Programm?
 
