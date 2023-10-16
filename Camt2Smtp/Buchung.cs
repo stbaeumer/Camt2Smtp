@@ -292,7 +292,8 @@ namespace camt2smtp
                 {
                     Console.WriteLine("keine Zuordnung");
                 }
-                var zeile = "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext;
+
+                var zeile = "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext + "\"" + Environment.NewLine;
 
                 if (!(from r in regeln 
                       where r.Kategorien == "?????"
