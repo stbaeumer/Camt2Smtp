@@ -232,33 +232,23 @@ namespace camt2smtp
         }
 
         internal string GetRegel(string benutzer, Regeln regeln, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
-        {            
+        {
             try
             {
                 Console.Write((this.BeguenstigterZahlungspflichtiger.Substring(0, Math.Min(20, this.BeguenstigterZahlungspflichtiger.Length)) + "|" + this.Verwendungszweck.Substring(0, Math.Min(50, this.Verwendungszweck.Length)) + " ...").PadRight(90, ' '));
                 var infragekommendeRegeln = new Regeln();
                 infragekommendeRegeln.AddRange(regeln);
 
-                foreach (var eigenschaft in new List<string>
-                {
-                    "BeguenstigterZahlungspflichtiger",
-                    "Verwendungszweck",
-                    "Mandatsreferenz",
-                    "Kundenreferenz",
-                    "Iban",
-                    "Buchungstext"
-                })
-                {
-                    infragekommendeRegeln = FilterInfragekommendeRegeln(eigenschaft, infragekommendeRegeln);
+                infragekommendeRegeln.Filter(this);
 
-                    if (infragekommendeRegeln.Count == 1 && infragekommendeRegeln[0].Kategorien != "?????")
-                    {
-                        this.Regel = infragekommendeRegeln[0];
-                        Console.WriteLine(Regel.Kategorien);
-                        SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, regeln, csvKontobewegungen, smtpClient, smtpUser);
-                        return "";
-                    }
+                if (infragekommendeRegeln.Count == 1 && infragekommendeRegeln[0].Kategorien != "?????")
+                {
+                    this.Regel = infragekommendeRegeln[0];
+                    Console.WriteLine(Regel.Kategorien);
+                    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, regeln, csvKontobewegungen, smtpClient, smtpUser);
+                    return "";
                 }
+
                 if (infragekommendeRegeln.Count >= 2)
                 {
                     // Bei mehreren infragekommenden Regeln muss auf Splitbuchung geprüft werden.
@@ -295,7 +285,7 @@ namespace camt2smtp
 
                 var zeile = "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext + "\"" + Environment.NewLine;
 
-                if (!(from r in regeln 
+                if (!(from r in regeln
                       where r.Kategorien == "?????"
                       where r.Kundenreferenz == Kundenreferenz
                       where r.Mandatsreferenz == Mandatsreferenz

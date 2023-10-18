@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 namespace camt2smtp
@@ -28,7 +29,7 @@ namespace camt2smtp
 
                     File.WriteAllText(pfad + datei, kopfzeile);
                 }
-                
+
                 using (StreamReader streamReader = new StreamReader(pfad + "\\" + datei))
                 {
                     var überschrift = streamReader.ReadLine();
@@ -83,6 +84,33 @@ namespace camt2smtp
 
         public Regeln()
         {
+        }
+
+        internal void Filter(Buchung buchung)
+        {
+            foreach (Regel regel in this.ToList())
+            {
+                foreach (var eigenschaft in new List<string>
+                {
+                    "BeguenstigterZahlungspflichtiger",
+                    "Verwendungszweck",
+                    "Mandatsreferenz",
+                    "Kundenreferenz",
+                    "Iban",
+                    "Buchungstext"
+                })
+                {
+                    string eigenschaftswert = buchung.GetType().GetProperty(eigenschaft).GetValue(buchung, null).ToString();
+                    string reigenschaftswert = regel.GetType().GetProperty(eigenschaft).GetValue(regel, null).ToString();
+
+                    // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen.
+                    
+                    if (reigenschaftswert != "" && (eigenschaftswert == "" || eigenschaftswert != "" && !eigenschaftswert.ToLower().Contains(reigenschaftswert.ToLower())))
+                    {
+                        this.Remove(regel);
+                    }
+                }
+            }
         }
     }
 }
