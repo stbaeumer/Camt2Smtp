@@ -296,7 +296,7 @@ namespace camt2smtp
                 {
                     File.AppendAllText(pfad + "\\regeln.csv", zeile);
                 }
-                return zeile + "\"<br>";
+                return zeile + "<br>";
             }
             catch (Exception e)
             {

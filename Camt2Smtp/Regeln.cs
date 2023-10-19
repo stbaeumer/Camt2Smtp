@@ -103,11 +103,14 @@ namespace camt2smtp
                     string eigenschaftswert = buchung.GetType().GetProperty(eigenschaft).GetValue(buchung, null).ToString();
                     string reigenschaftswert = regel.GetType().GetProperty(eigenschaft).GetValue(regel, null).ToString();
 
-                    // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen.
-                    
-                    if (reigenschaftswert != "" && (eigenschaftswert == "" || eigenschaftswert != "" && !eigenschaftswert.ToLower().Contains(reigenschaftswert.ToLower())))
+                    foreach (var re in reigenschaftswert.Split(','))
                     {
-                        this.Remove(regel);
+                        // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen.
+
+                        if (re != "" && (eigenschaftswert == "" || eigenschaftswert != "" && !eigenschaftswert.ToLower().Contains(re.ToLower())))
+                        {
+                            this.Remove(regel);
+                        }
                     }
                 }
             }
