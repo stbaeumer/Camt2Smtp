@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,7 +33,7 @@ namespace camt2smtp
                 {
                     var überschrift = reader.ReadLine();
                     int i = 1;
-
+                    
                     while (true)
                     {
                         i++;
@@ -97,6 +98,18 @@ namespace camt2smtp
             }
         }
 
+        private int UmlauteEnthalten(string verwendungszweck)
+        {
+            foreach (var item in new List<string>() { "ä", "ü", "ö", "ß"})
+            {
+                if (verwendungszweck.ToLower().Contains(item))
+                {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
         public Buchungen(List<string> camtDateien, Regeln regeln)
         {
             try
@@ -109,8 +122,11 @@ namespace camt2smtp
 
                     using (StreamReader reader = new StreamReader(camtDatei, Encoding.Default, true))
                     {
+                        Console.WriteLine(reader.CurrentEncoding);
+
                         var überschrift = reader.ReadLine();
                         int i = 1;
+                        int umlaute = 0;
                         zähler = 0;
 
                         while (true)
@@ -134,6 +150,7 @@ namespace camt2smtp
                                     buchung.Valutadatum = x[2] == "" ? new DateTime() : DateTime.ParseExact(x[2], "dd.MM.yy", System.Globalization.CultureInfo.InvariantCulture);
                                     buchung.Buchungstext = x[3];
                                     buchung.Verwendungszweck = x[4];
+                                    umlaute += UmlauteEnthalten(buchung.Verwendungszweck);
                                     buchung.GlaeubigerID = x[5];
                                     buchung.Mandatsreferenz = x[6];
                                     buchung.Kundenreferenz = x[7];
@@ -187,8 +204,20 @@ namespace camt2smtp
                                 throw ex;
                             }
                         }
+                        // Wenn in sämtlichen Buchungen ein deutscher Umlaut enthalten ist, kommt eine Warnung
+
+                        if (umlaute == 0)
+                        {
+                            Console.WriteLine("In der gesamten Datei " + camtDatei + " sind keine Umlaute.");
+                            Console.WriteLine("Die Codepage scheint nicht zu stimmen.");
+                            Console.WriteLine("Bitte die Datei entfernen und neu herunterladen.");
+                            Console.WriteLine("ENTER beendet das Programm.");
+                            Console.ReadKey();
+                            Environment.Exit(0);                            
+                        }
                     }
                 }
+
                 AddRange(buchungenUnsortiert.OrderBy(x => x.Buchungstag));
             }
             catch (Exception ex)
@@ -196,5 +225,6 @@ namespace camt2smtp
                 throw ex;
             }
         }
+
     }
 }
