@@ -29,7 +29,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
-                Console.WriteLine("Version 20231015" );
+                Console.WriteLine("Version 20231026" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
@@ -40,7 +40,7 @@ namespace camt2smtp
 
                 PrüfePfad();
 
-                List<string> camtDateien = PrüfeDatein(Benutzer, Pfad, Camt);
+                List<string> camtDateien = PrüfeDateien(Benutzer, Pfad, Camt);
 
                 IstBuchungen = new Buchungen(Pfad + @"\protokoll.csv");
                 var regeln = new Regeln(Pfad);
@@ -297,7 +297,7 @@ namespace camt2smtp
             }
         }
 
-        private static List<string> PrüfeDatein(string benutzer, string pfad, string namensbestandteil)
+        private static List<string> PrüfeDateien(string benutzer, string pfad, string namensbestandteil)
         {
             try
             {

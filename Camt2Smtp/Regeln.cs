@@ -2,12 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace camt2smtp
 {
@@ -108,7 +104,7 @@ namespace camt2smtp
 
                     foreach (var re in reigenschaftswert.Split(','))
                     {
-                        // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen.
+                        // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen und darf nicht leer sein.
 
                         if (re != "" && (eigenschaftswert == "" || eigenschaftswert != "" && !eigenschaftswert.ToLower().Contains(re.ToLower())))
                         {

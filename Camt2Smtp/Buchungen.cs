@@ -122,8 +122,6 @@ namespace camt2smtp
 
                     using (StreamReader reader = new StreamReader(camtDatei, Encoding.Default, true))
                     {
-                        Console.WriteLine(reader.CurrentEncoding);
-
                         var überschrift = reader.ReadLine();
                         int i = 1;
                         int umlaute = 0;
