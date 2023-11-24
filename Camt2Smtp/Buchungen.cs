@@ -143,6 +143,7 @@ namespace camt2smtp
                                     string[] x = System.Text.RegularExpressions.Regex.Split(line.Substring(1, line.Length - 2), pattern);
 
                                     buchung = new Buchung();
+                                    buchung.Zeile = line;
                                     buchung.Auftragskonto = x[0];
                                     buchung.Buchungstag = DateTime.ParseExact(x[1], "dd.MM.yy", System.Globalization.CultureInfo.InvariantCulture);
                                     buchung.Valutadatum = x[2] == "" ? new DateTime() : DateTime.ParseExact(x[2], "dd.MM.yy", System.Globalization.CultureInfo.InvariantCulture);
@@ -162,6 +163,7 @@ namespace camt2smtp
                                     buchung.Währung = x[15];
                                     buchung.Info = x[16];
                                     buchung.VergangeneBuchungen = new List<Buchung>();
+                                    buchung.Regeln = regeln;
 
                                     // Buchungen könnten in verschiedenen Export-Dateien mehrfach vorkommen.
                                     // Also werden sie gefiltert.
@@ -199,7 +201,7 @@ namespace camt2smtp
                             }
                             catch (Exception ex)
                             {
-                                throw ex;
+                                throw new Exception("FEHLER: CAMT-Datei " + camtDatei + ", Zeile " + i + "(" + line + "), " + "| " + ex.Message + ", " + ex.StackTrace);
                             }
                         }
                         // Wenn in sämtlichen Buchungen ein deutscher Umlaut enthalten ist, kommt eine Warnung

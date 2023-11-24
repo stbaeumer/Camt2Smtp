@@ -1,6 +1,7 @@
 ﻿// Published under the terms of GPLv3 Stefan Bäumer 2023.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace camt2smtp
@@ -16,6 +17,8 @@ namespace camt2smtp
         public string Kundenreferenz { get; internal set; }
         public string Buchungstext { get; internal set; }
         public string Sortierkriterium { get; internal set; }
+        public List<string> KategorienListe { get; internal set; }
+        public string[] KriterienListe { get; internal set; }
 
         public Regel(string kundenreferenz, string mandantsreferenz, string kategorien, string indikatorVerwendungszweck, string indikatorIban, string indikatorBeguenstigter, string pfad, decimal betrag)
         {

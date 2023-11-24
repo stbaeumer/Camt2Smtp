@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace camt2smtp
 {
@@ -24,6 +26,8 @@ namespace camt2smtp
                 {
                     string kopfzeile = "\"Name\";\"Kundenreferenz\";\"Mandatsreferenz\";\"IndikatorVerwendungszweck\";\"IndikatorIban\";\"IndikatorBeguenstigter\";\"Betrag\"" + Environment.NewLine;
 
+                    kopfzeile = "|Kategorien|Kommaseparierte Elemente|Betrag(optional)";
+
                     File.WriteAllText(pfad + datei, kopfzeile);
                 }
 
@@ -40,26 +44,31 @@ namespace camt2smtp
                         {
                             if (line != null)
                             {
-                                string pattern = @"""\s*;\s*""";
-                                string[] x = System.Text.RegularExpressions.Regex.Split(line.Substring(1, line.Length - 2), pattern);
+                                if (!line.StartsWith("#"))
+                                {
+                                    string[] x = line.Split('|');
 
-                                try
-                                {
-                                    regel.Kategorien = x[0];
-                                    regel.getSortierkriterium();
-                                    regel.Kundenreferenz = x[1];
-                                    regel.Mandatsreferenz = x[2];
-                                    regel.Verwendungszweck = x[3];
-                                    regel.Iban = x[4];
-                                    regel.BeguenstigterZahlungspflichtiger = x[5];
-                                    regel.Betrag = x[6] == "" ? 0 : Convert.ToDecimal(x[6]);
-                                    regel.Buchungstext = x[7];
-                                    this.Add(regel);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Fehler beim Einlesen der Regeln aus " + datei + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
-                                    Console.ReadLine();
+                                    try
+                                    {
+                                        regel.KategorienListe = x[0].Split(';').ToList();
+                                        regel.KriterienListe = x[1].Split(';');
+                                        regel.Betrag = x[2] == "" ? 0 : Convert.ToDecimal(x[2]);
+                                        //regel.Kategorien = x[0];
+                                        //regel.getSortierkriterium();
+                                        //regel.Kundenreferenz = x[1];
+                                        //regel.Mandatsreferenz = x[2];
+                                        //regel.Verwendungszweck = x[3];
+                                        //regel.Iban = x[4];
+                                        //regel.BeguenstigterZahlungspflichtiger = x[5];
+
+                                        //regel.Buchungstext = x[7];
+                                        this.Add(regel);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Fehler beim Einlesen der Regeln aus " + datei + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
+                                        Console.ReadLine();
+                                    }
                                 }
                             }
                             else
@@ -83,36 +92,6 @@ namespace camt2smtp
 
         public Regeln()
         {
-        }
-
-        internal void Filter(Buchung buchung)
-        {
-            foreach (Regel regel in this.ToList())
-            {
-                foreach (var eigenschaft in new List<string>
-                {
-                    "BeguenstigterZahlungspflichtiger",
-                    "Verwendungszweck",
-                    "Mandatsreferenz",
-                    "Kundenreferenz",
-                    "Iban",
-                    "Buchungstext"
-                })
-                {
-                    string eigenschaftswert = buchung.GetType().GetProperty(eigenschaft).GetValue(buchung, null).ToString();
-                    string reigenschaftswert = regel.GetType().GetProperty(eigenschaft).GetValue(regel, null).ToString();
-
-                    foreach (var re in reigenschaftswert.Split(','))
-                    {
-                        // Wenn in der Regel ein Eigenschaftswert gesetzt ist, muss die Buchung darauf matchen und darf nicht leer sein.
-
-                        if (re != "" && (eigenschaftswert == "" || eigenschaftswert != "" && !eigenschaftswert.ToLower().Contains(re.ToLower())))
-                        {
-                            this.Remove(regel);
-                        }
-                    }
-                }
-            }
         }
     }
 }

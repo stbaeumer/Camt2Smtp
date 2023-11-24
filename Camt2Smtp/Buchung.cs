@@ -38,6 +38,8 @@ namespace camt2smtp
         public string VertragJaNein { get; private set; }
         public string Vertragsname { get; internal set; }
         public string Zeitstempel { get; internal set; }
+        public string Zeile { get; internal set; }
+        public Regeln Regeln { get; internal set; }
 
         public Buchung(string auftragskonto)
         {
@@ -47,10 +49,10 @@ namespace camt2smtp
         {
         }
 
-        internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, Regeln regeln, Buchungen alleKontobewegungen, SmtpClient smtpClient, string smtpUser)
+        internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
-            string b = (Regel != null && Regel.Kategorien != null && Regel.Kategorien != "" ? " [" + Regel.Kategorien.Split(',')[0] + "] " : "") + " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | ") + Verwendungszweck);
-            string betreff = b.Substring(0, Math.Min(b.Length, 110)) + " | " + string.Format("{0:#.00}", Betrag) + " €";
+            string b = (Regeln[0] != null && Regeln[0].KategorienListe != null && Regeln[0].KategorienListe.Count() > 0 ? " [" + String.Join(",", Regeln[0].KategorienListe) + "] " :  " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | ") + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
+            string betreff = b.Substring(0, Math.Min(b.Length, 110)) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
 
             var buchung = new Buchung();
@@ -68,13 +70,14 @@ namespace camt2smtp
             buchung.BeguenstigterZahlungspflichtiger = BeguenstigterZahlungspflichtiger;
             buchung.Iban = Iban;
             buchung.Bic = Bic;
-            buchung.Betrag = Betrag;
+            buchung.Betrag = Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag;
             buchung.Währung = Währung;
             buchung.Info = Info;
-            buchung.Vertragsname = Regel.Kategorien;
+            buchung.Vertragsname = String.Join(",", Regeln[0].KategorienListe.ToArray());
+            buchung.Regel = Regeln[0];
             protokolldateiBuchungen.Add(buchung);
             body += RenderDieseBuchung();
-            body += BuchungenZuDiesenRegeln2List(regeln, protokolldateiBuchungen, buchung);
+            body += BuchungenZuDiesenRegeln2List(protokolldateiBuchungen);
 
             Console.WriteLine("Betreff: " + betreff.Replace(" €", " EUR"));
 
@@ -110,7 +113,7 @@ namespace camt2smtp
                     Betrag + "\";\"" +
                     Währung + "\";\"" +
                     Info + "\";\"" +
-                    (Regel == null ? " --- " : Regel.Kategorien) + "\"" + Environment.NewLine;
+                    (Regeln[0] == null ? " --- " : String.Join(",", Regeln[0].KategorienListe.ToArray())) + "\"" + Environment.NewLine;
 
                 File.AppendAllText(protokolldatei, protokollzeile);
             }
@@ -121,11 +124,11 @@ namespace camt2smtp
             }
         }
 
-        private string BuchungenZuDiesenRegeln2List(Regeln regeln, Buchungen protokolldateiBuchungen, Buchung buchung)
+        private string BuchungenZuDiesenRegeln2List(Buchungen protokolldateiBuchungen)
         {
             var z = @"<table border='1'>";
 
-            foreach (var ver in Regel.Kategorien.Split(','))
+            foreach (var ver in Regeln[0].KategorienListe)
             {
                 z += "<tr><td><b>" + ver + ":</b></td></tr>";
 
@@ -135,14 +138,14 @@ namespace camt2smtp
                                  where p.Buchungstag.Year == year
                                  where p.Vertragsname != null
                                  where p.Vertragsname != ""
-                                 where p.Vertragsname.Split(',').Contains(ver)
+                                 where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
                                  select p.Betrag).Sum();
 
                     var anzahl = (from p in protokolldateiBuchungen
                                   where p.Buchungstag.Year == year
                                   where p.Vertragsname != null
                                   where p.Vertragsname != ""
-                                  where p.Vertragsname.Split(',').Contains(ver)
+                                  where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
                                   select p.Betrag).Count();
 
                     z += "<tr><td>" + year + "</td><td>" + anzahl + "x</td><td>" + string.Format("{0:0.00}", summe) + " EUR</td></tr>";
@@ -153,7 +156,7 @@ namespace camt2smtp
                                              where p.Buchungstag.Year == year
                                              where p.Vertragsname != null
                                              where p.Vertragsname != ""
-                                             where p.Vertragsname.Split(',').Contains(ver)
+                                             where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
                                              select p).ToList())
                         {
                             z += "<tr><td></td><td>" + pro.Buchungstag.ToShortDateString() + "</td><td>" + string.Format("{0:0.00}", pro.Betrag) + " EUR</td></tr>";
@@ -184,119 +187,80 @@ namespace camt2smtp
                 throw ex;
             }
         }
-        private Regeln FilterInfragekommendeRegeln(string eigenschaft, List<Regel> infragekommendeRegeln)
-        {
-            var regeln = new Regeln();
 
-            try
-            {
-                string eigenschaftswert = this.GetType().GetProperty(eigenschaft).GetValue(this, null).ToString();
-
-                if (eigenschaftswert != "")
-                {
-                    foreach (var iK in infragekommendeRegeln)
-                    {
-                        string veigenschaftswert = iK.GetType().GetProperty(eigenschaft).GetValue(iK, null).ToString();
-
-                        if (veigenschaftswert != "")
-                        {
-                            if (veigenschaftswert.Split(',').All(s => eigenschaftswert.ToLower().Contains(s.ToLower())))
-                            {
-                                regeln.Add(iK);
-                            }
-                        }
-                    }
-
-                    // Wenn kein Volltreffer für diese Eigenschaft erzielt werden konnte, werden auch die leeren 
-                    // Eigenschaftswerte zugelassen.
-
-                    if (regeln.Count == 0)
-                    {
-                        foreach (var item in infragekommendeRegeln)
-                        {
-                            string veigenschaft = item.GetType().GetProperty(eigenschaft).GetValue(item, null).ToString();
-
-                            if (veigenschaft == "")
-                            {
-                                regeln.Add(item);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return regeln;
-        }
-
-        internal string GetRegel(string benutzer, Regeln regeln, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
+        internal string GetRegel(string benutzer, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
         {
             try
             {
                 Console.Write((this.BeguenstigterZahlungspflichtiger.Substring(0, Math.Min(20, this.BeguenstigterZahlungspflichtiger.Length)) + "|" + this.Verwendungszweck.Substring(0, Math.Min(50, this.Verwendungszweck.Length)) + " ...").PadRight(90, ' '));
-                var infragekommendeRegeln = new Regeln();
-                infragekommendeRegeln.AddRange(regeln);
 
-                infragekommendeRegeln.Filter(this);
+                // Wenn es in allen Regeln genau einen Volltreffer gibt, werden alle anderen Regeln gelöscht.
 
-                if (infragekommendeRegeln.Count == 1 && infragekommendeRegeln[0].Kategorien != "?????")
+                if ((from regel in Regeln
+                     where regel.KriterienListe.All(w => this.Zeile.Contains(w))
+                     where regel.Betrag == this.Betrag
+                     select regel).Count() == 1)
                 {
-                    this.Regel = infragekommendeRegeln[0];
-                    Console.WriteLine(Regel.Kategorien);
-                    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, regeln, csvKontobewegungen, smtpClient, smtpUser);
+                    var r = (from regel in Regeln
+                             where regel.KriterienListe.All(w => this.Zeile.Contains(w))
+                             where regel.Betrag == this.Betrag
+                             select regel).FirstOrDefault();
+
+                    Regeln.Clear();
+                    Regeln.Add(r);
+                    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";
                 }
 
-                if (infragekommendeRegeln.Count >= 2)
-                {
-                    // Bei mehreren infragekommenden Regeln muss auf Splitbuchung geprüft werden.
-                    // Es liegt eine Splitbuchung vor, wenn nur der Betrag sich unterscheidet.
+                var regeln = (from regel in Regeln
+                              where regel.KriterienListe.All(w => Zeile.Contains(w))
+                              select regel).ToList();
 
-                    if (
-                        infragekommendeRegeln.Select(x => x.BeguenstigterZahlungspflichtiger).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Buchungstext).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Iban).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Kundenreferenz).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Mandatsreferenz).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Verwendungszweck).Distinct().Count() == 1 &&
-                        infragekommendeRegeln.Select(x => x.Betrag).Distinct().Count() == infragekommendeRegeln.Count
-                        )
+                // Wenn bis auf den Betrag alle Kriterien passen und mehr als eine Buchung
+                // infrage kommt,dann könnte eine Splitbuchung vorliegen
+
+                if (regeln.Count() > 1)
+                {
+                    // Es muss geprüft werden, ob alle Beträge zusammen den Buchungsbetrag ergeben
+
+                    if ((from r in regeln select r.Betrag).Sum() == Betrag)
                     {
-                        foreach (var iK in infragekommendeRegeln)
-                        {
-                            Regel = iK;
-                            Console.WriteLine(Regel.Kategorien + " (Splitbuchnung)");
-                            this.Betrag = Regel.Betrag;
-                            SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, regeln, csvKontobewegungen, smtpClient, smtpUser);
-                        }
+                        Regeln.Clear();
+                        Regeln.AddRange(regeln);
+                        SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                         return "";
                     }
-                    else
+
+                    // Es wird geprüft, ob zwei Beträge zusammen den Buchungsbetrag ergeben.
+                    // Wenn ja, dann ist es eine Splitbuchung
+
+                    for (int i = 0; i < regeln.Count - 1; i++)
                     {
-                        Console.WriteLine("Keine eindeutige Zuordnung: Es kommen " + infragekommendeRegeln.Count + " Regeln infrage.");
+                        if (regeln[i].Betrag + regeln[i + 1].Betrag == Betrag)
+                        {
+                            regeln[i].KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
+                            Regeln.Clear();                            
+                            Regeln.Add(regeln[i]);
+                            SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
+
+                            Regeln.Clear();
+                            Regeln.Add(regeln[i + 1]);
+                            SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
+
+                            return "";
+                        }
                     }
                 }
-                else
+                if (regeln.Count() == 1)
                 {
-                    Console.WriteLine("keine Zuordnung");
-                }
+                    // Wenn nur ein Treffer erzielt wurde und nur die Krterien, aber nicht der
+                    // Betrag stimmt
 
-                var zeile = "\"?????\";\"" + Kundenreferenz + "\";\"" + Mandatsreferenz + "\";\"" + Verwendungszweck + "\";\"" + Iban + "\";\"" + BeguenstigterZahlungspflichtiger + "\";\"" + Math.Abs(Betrag) + "\";\"" + Buchungstext + "\"" + Environment.NewLine;
-
-                if (!(from r in regeln
-                      where r.Kategorien == "?????"
-                      where r.Kundenreferenz == Kundenreferenz
-                      where r.Mandatsreferenz == Mandatsreferenz
-                      where r.Verwendungszweck == Verwendungszweck
-                      where r.Iban == Iban
-                      where r.BeguenstigterZahlungspflichtiger == BeguenstigterZahlungspflichtiger
-                      select r).Any())
-                {
-                    File.AppendAllText(pfad + "\\regeln.csv", zeile);
+                    Regeln.Clear();
+                    Regeln.Add(regeln[0]);
+                    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                 }
-                return zeile + "<br>";
+                return "";
             }
             catch (Exception e)
             {

@@ -11,7 +11,7 @@ Zusammen mit eingescannten Verträgen wird Posteo zum vollwertigen Ersatz eines 
 #### Das Ganze an einem Beispiel:
 
 Für jedes Fahrrad erstelle ich einen IMAP-Ordner. Die digitale Kopie die Rechnung, den Fahrradpass, Fotos von Anbauteilen, ein Foto von der Rahmennummer, die Zahlenkombination des Schlosses usw. schicke ich verschlüsselt per Mail an mich selbst. 
-Über eine Regel in FairEmail werden alle Kontobewegungen mit der Kategorie "Riese&Müller" ebenfalls in diesen Ordner einsortiert. So sind alle Informationen zu dem Rad jederzeit und an jedem Ort vorliegend. Im Falle eines Verkaufs oder Diebstahls oder einer Kontrolle muss ich die gewünschte Mail einfach nur in FairEmail öffnen. 
+Über eine Regel in FairEmail werden alle Kontobewegungen mit der Kategorie Riese&Müller ebenfalls in diesen Ordner einsortiert. So sind alle Informationen zu dem Rad jederzeit und an jedem Ort vorliegend. Im Falle eines Verkaufs oder Diebstahls oder einer Kontrolle muss ich die gewünschte Mail einfach nur in FairEmail öffnen. 
 
 ## Schritte der Verarbeitung:
 
@@ -59,7 +59,7 @@ Mit FairEmail oder Mailvelope oder anderen Programmen können die Nachrichten da
 
 ### Sind Splitbuchungen möglich?
 
-Ja, wenn zwei Regeln sich ausschließlich im Betrag unterscheiden, dann liegt eine Splitbuchung vor.;
+Ja, wenn zwei Regeln sich ausschließlich im Betrag unterscheiden, dann liegt eine Splitbuchung vor.,
 
 ## Erläuterungen mit Bildern 
 
@@ -68,7 +68,7 @@ Die eingegebenen Parameter werden angezeigt. Das Programm speichert intern keine
 
 ![Konsole](Camt2Smtp/Bilder/Parameter.png?raw=true)
 
-Die Konsolenausgabe zeigt: Es wurden bisher 12 CAMT-Dateien heruntergeladen. Alle werden eingelesen. Eine Buchung mit der Kategorie "Arzt,Gesundheit,ArztrechnungenMinusErstattungen" wird ausgeführt. Der Betreff der Mail wird angezeigt. In eckigen Klammern steht die erste Kategorie, anhand derer Fairemail die Zurodnung in einen IMAP-Ordner vornimmt.
+Die Konsolenausgabe zeigt: Es wurden bisher 12 CAMT-Dateien heruntergeladen. Alle werden eingelesen. Eine Buchung mit der Kategorie Arzt,Gesundheit,ArztrechnungenMinusErstattungen wird ausgeführt. Der Betreff der Mail wird angezeigt. In eckigen Klammern steht die erste Kategorie, anhand derer Fairemail die Zurodnung in einen IMAP-Ordner vornimmt.
 
 ![Konsole](Camt2Smtp/Bilder/console.png?raw=true)
 

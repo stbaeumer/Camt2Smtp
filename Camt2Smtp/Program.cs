@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Threading;
@@ -29,7 +30,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
-                Console.WriteLine("Version 20231117" );
+                Console.WriteLine("Version 20231122" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
@@ -50,17 +51,18 @@ namespace camt2smtp
 
                 var offeneKontobewegungen = "";
 
-                foreach (var csvkontobewegung in SollBuchungen)
+                foreach (var buchung in SollBuchungen)
                 {
                     // Nur wenn eine Buchung noch nicht durchgeführt wurde... 
 
                     if (!(from protokollierteBuchung in IstBuchungen
-                          where protokollierteBuchung.Verwendungszweck == csvkontobewegung.Verwendungszweck
-                          where protokollierteBuchung.Buchungstag.Date == csvkontobewegung.Buchungstag.Date
-                          where protokollierteBuchung.BeguenstigterZahlungspflichtiger == csvkontobewegung.BeguenstigterZahlungspflichtiger
+                          where protokollierteBuchung.Verwendungszweck == buchung.Verwendungszweck
+                          where protokollierteBuchung.Buchungstag.Date == buchung.Buchungstag.Date
+                          where protokollierteBuchung.BeguenstigterZahlungspflichtiger == buchung.BeguenstigterZahlungspflichtiger
+                          
                           select protokollierteBuchung).Any())
                     {
-                        offeneKontobewegungen += csvkontobewegung.GetRegel(Benutzer, regeln, Pfad, IstBuchungen, SollBuchungen, SmtpClient, SmtpUser);
+                        offeneKontobewegungen += buchung.GetRegel(Benutzer, Pfad, IstBuchungen, SollBuchungen, SmtpClient, SmtpUser);
                     }
                 }
 
