@@ -196,24 +196,24 @@ namespace camt2smtp
 
                 // Wenn es in allen Regeln genau einen Volltreffer gibt, werden alle anderen Regeln gelöscht.
 
-                if ((from regel in Regeln
-                     where regel.KriterienListe.All(w => this.Zeile.Contains(w))
+                if ((from regel in this.Regeln
+                     where regel.KriterienListe.All(w => this.Zeile.ToLower().Contains(w.ToLower()))
                      where regel.Betrag == this.Betrag
                      select regel).Count() == 1)
                 {
-                    var r = (from regel in Regeln
-                             where regel.KriterienListe.All(w => this.Zeile.Contains(w))
+                    var r = (from regel in this.Regeln
+                             where regel.KriterienListe.All(w => this.Zeile.ToLower().Contains(w.ToLower()))
                              where regel.Betrag == this.Betrag
                              select regel).FirstOrDefault();
 
-                    Regeln.Clear();
-                    Regeln.Add(r);
+                    this.Regeln.Clear();
+                    this.Regeln.Add(r);
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";
                 }
 
-                var regeln = (from regel in Regeln
-                              where regel.KriterienListe.All(w => Zeile.Contains(w))
+                var regeln = (from regel in this.Regeln
+                              where regel.KriterienListe.All(w => Zeile.ToLower().Contains(w.ToLower()))
                               select regel).ToList();
 
                 // Wenn bis auf den Betrag alle Kriterien passen und mehr als eine Buchung
@@ -225,8 +225,8 @@ namespace camt2smtp
 
                     if ((from r in regeln select r.Betrag).Sum() == Betrag)
                     {
-                        Regeln.Clear();
-                        Regeln.AddRange(regeln);
+                        this.Regeln.Clear();
+                        this.Regeln.AddRange(regeln);
                         SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                         return "";
                     }
@@ -239,12 +239,12 @@ namespace camt2smtp
                         if (regeln[i].Betrag + regeln[i + 1].Betrag == Betrag)
                         {
                             regeln[i].KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
-                            Regeln.Clear();                            
-                            Regeln.Add(regeln[i]);
+                            this.Regeln.Clear();                            
+                            this.Regeln.Add(regeln[i]);
                             SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
 
-                            Regeln.Clear();
-                            Regeln.Add(regeln[i + 1]);
+                            this.Regeln.Clear();
+                            this.Regeln.Add(regeln[i + 1]);
                             SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
 
                             return "";
@@ -259,7 +259,9 @@ namespace camt2smtp
                     Regeln.Clear();
                     Regeln.Add(regeln[0]);
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
+                    return "";
                 }
+                Console.WriteLine();
                 return "";
             }
             catch (Exception e)

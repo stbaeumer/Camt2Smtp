@@ -163,7 +163,8 @@ namespace camt2smtp
                                     buchung.Währung = x[15];
                                     buchung.Info = x[16];
                                     buchung.VergangeneBuchungen = new List<Buchung>();
-                                    buchung.Regeln = regeln;
+                                    buchung.Regeln = new Regeln();
+                                    buchung.Regeln.AddRange(regeln);
 
                                     // Buchungen könnten in verschiedenen Export-Dateien mehrfach vorkommen.
                                     // Also werden sie gefiltert.
