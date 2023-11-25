@@ -257,12 +257,14 @@ namespace camt2smtp
                     // Betrag stimmt
 
                     Regeln.Clear();
+                    
+                    
                     Regeln.Add(regeln[0]);
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";
                 }
                 Console.WriteLine();
-                return "";
+                return this.BeguenstigterZahlungspflichtiger;
             }
             catch (Exception e)
             {

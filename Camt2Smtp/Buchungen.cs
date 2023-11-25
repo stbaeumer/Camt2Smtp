@@ -188,6 +188,10 @@ namespace camt2smtp
                                                   select b).Any()
                                                  )
                                             {
+                                                if (buchung.Verwendungszweck.ToLower().Contains("förderverein") || buchung.Verwendungszweck.ToLower().Contains("foerderverein"))
+                                                {
+                                                    string a = "";
+                                                }
                                                 buchungenUnsortiert.Add(buchung);
                                                 zähler++;
                                             }
