@@ -36,10 +36,11 @@ namespace camt2smtp
         public Regel Regel { get; set; }
         public string Kürzel { get; private set; }
         public string VertragJaNein { get; private set; }
-        public string Vertragsname { get; internal set; }
+        public string Kategorien { get; internal set; }
         public string Zeitstempel { get; internal set; }
         public string Zeile { get; internal set; }
         public Regeln Regeln { get; internal set; }
+        public List<string> Kategorienliste { get; internal set; }
 
         public Buchung(string auftragskonto)
         {
@@ -52,7 +53,7 @@ namespace camt2smtp
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
             string b = (Regeln[0] != null && Regeln[0].KategorienListe != null && Regeln[0].KategorienListe.Count() > 0 ? " [" + String.Join(",", Regeln[0].KategorienListe) + "] " :  " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | ") + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
-            string betreff = b.Substring(0, Math.Min(b.Length, 110)) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
+            string betreff = b.Substring(0, Math.Min(b.Length, 30)) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
 
             var buchung = new Buchung();
@@ -73,7 +74,7 @@ namespace camt2smtp
             buchung.Betrag = Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag;
             buchung.Währung = Währung;
             buchung.Info = Info;
-            buchung.Vertragsname = String.Join(",", Regeln[0].KategorienListe.ToArray());
+            buchung.Kategorien = String.Join(",", Regeln[0].KategorienListe.ToArray());
             buchung.Regel = Regeln[0];
             protokolldateiBuchungen.Add(buchung);
             body += RenderDieseBuchung();
@@ -93,7 +94,13 @@ namespace camt2smtp
             {
                 smtpClient.Send(mm);
 
-                // Wenn der Versand erfolgreich war, wird der Datensatz gespeichert
+                // Wenn der Versand erfolgreich war, wird der Datensatz protokolliert
+                
+                
+                var regeln = String.Join(",", Regeln[0].KategorienListe.ToArray());
+
+                // Bei Splitbuchungen wird der Betrag aus der Regel genommen.
+                var betrag = (regeln.Contains("Splitbuchung") ? Regeln[0].Betrag : Betrag);
 
                 string protokollzeile = "\"" + DateTime.Now.ToShortDateString() + "-" + DateTime.Now.ToShortTimeString() + "\";\"" +
                     Auftragskonto + "\";\"" +
@@ -110,10 +117,10 @@ namespace camt2smtp
                     BeguenstigterZahlungspflichtiger + "\";\"" +
                     Iban + "\";\"" +
                     Bic + "\";\"" +
-                    Betrag + "\";\"" +
+                    betrag + "\";\"" +
                     Währung + "\";\"" +
                     Info + "\";\"" +
-                    (Regeln[0] == null ? " --- " : String.Join(",", Regeln[0].KategorienListe.ToArray())) + "\"" + Environment.NewLine;
+                    (Regeln[0] == null ? " --- " : regeln) + "\"" + Environment.NewLine;
 
                 File.AppendAllText(protokolldatei, protokollzeile);
             }
@@ -136,16 +143,16 @@ namespace camt2smtp
                 {
                     var summe = (from p in protokolldateiBuchungen
                                  where p.Buchungstag.Year == year
-                                 where p.Vertragsname != null
-                                 where p.Vertragsname != ""
-                                 where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
+                                 where p.Kategorien != null
+                                 where p.Kategorien != ""
+                                 where p.Kategorien.ToLower().Split(',').Contains(ver.ToLower())
                                  select p.Betrag).Sum();
 
                     var anzahl = (from p in protokolldateiBuchungen
                                   where p.Buchungstag.Year == year
-                                  where p.Vertragsname != null
-                                  where p.Vertragsname != ""
-                                  where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
+                                  where p.Kategorien != null
+                                  where p.Kategorien != ""
+                                  where p.Kategorien.ToLower().Split(',').Contains(ver.ToLower())
                                   select p.Betrag).Count();
 
                     z += "<tr><td>" + year + "</td><td>" + anzahl + "x</td><td>" + string.Format("{0:0.00}", summe) + " EUR</td></tr>";
@@ -154,9 +161,9 @@ namespace camt2smtp
                     {
                         foreach (var pro in (from p in protokolldateiBuchungen
                                              where p.Buchungstag.Year == year
-                                             where p.Vertragsname != null
-                                             where p.Vertragsname != ""
-                                             where p.Vertragsname.ToLower().Split(',').Contains(ver.ToLower())
+                                             where p.Kategorien != null
+                                             where p.Kategorien != ""
+                                             where p.Kategorien.ToLower().Split(',').Contains(ver.ToLower())
                                              select p).ToList())
                         {
                             z += "<tr><td></td><td>" + pro.Buchungstag.ToShortDateString() + "</td><td>" + string.Format("{0:0.00}", pro.Betrag) + " EUR</td></tr>";
@@ -188,7 +195,7 @@ namespace camt2smtp
             }
         }
 
-        internal string GetRegel(string benutzer, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
+        internal string GetRegel(string regeldatei, string benutzer, string pfad, Buchungen protokollierteBuchungen, Buchungen csvKontobewegungen, SmtpClient smtpClient, string smtpUser)
         {
             try
             {
@@ -221,15 +228,15 @@ namespace camt2smtp
 
                 if (regeln.Count() > 1)
                 {
-                    // Es muss geprüft werden, ob alle Beträge zusammen den Buchungsbetrag ergeben
+                    //// Es muss geprüft werden, ob alle Beträge zusammen den Buchungsbetrag ergeben
 
-                    if ((from r in regeln select r.Betrag).Sum() == Betrag)
-                    {
-                        this.Regeln.Clear();
-                        this.Regeln.AddRange(regeln);
-                        SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
-                        return "";
-                    }
+                    //if ((from r in regeln select r.Betrag).Sum() == Betrag)
+                    //{
+                    //    this.Regeln.Clear();
+                    //    this.Regeln.AddRange(regeln);
+                    //    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
+                    //    return "";
+                    //}
 
                     // Es wird geprüft, ob zwei Beträge zusammen den Buchungsbetrag ergeben.
                     // Wenn ja, dann ist es eine Splitbuchung
@@ -243,6 +250,7 @@ namespace camt2smtp
                             this.Regeln.Add(regeln[i]);
                             SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
 
+                            regeln[i + 1].KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
                             this.Regeln.Clear();
                             this.Regeln.Add(regeln[i + 1]);
                             SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
@@ -264,7 +272,8 @@ namespace camt2smtp
                     return "";
                 }
                 Console.WriteLine();
-                return this.BeguenstigterZahlungspflichtiger;
+                File.AppendAllText(regeldatei, Environment.NewLine + "#" + "|" + this.Zeile + "|");
+                return "#" + "|"+ this.Zeile + "|</br>";
             }
             catch (Exception e)
             {

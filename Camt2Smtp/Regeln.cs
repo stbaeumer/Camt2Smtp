@@ -17,21 +17,18 @@ namespace camt2smtp
         {
             try
             {
-                var datei = (from f in new DirectoryInfo(pfad).GetFiles()
-                             where f.Name.Contains("regeln.")
-                             orderby f.LastWriteTime descending
-                             select f).First();
+                
 
-                if (datei == null)
+                if (pfad == null)
                 {
                     string kopfzeile = "\"Name\";\"Kundenreferenz\";\"Mandatsreferenz\";\"IndikatorVerwendungszweck\";\"IndikatorIban\";\"IndikatorBeguenstigter\";\"Betrag\"" + Environment.NewLine;
 
                     kopfzeile = "|Kategorien|Kommaseparierte Elemente|Betrag(optional)";
 
-                    File.WriteAllText(pfad + datei, kopfzeile);
+                    File.WriteAllText(pfad, kopfzeile);
                 }
 
-                using (StreamReader streamReader = new StreamReader(pfad + "\\" + datei))
+                using (StreamReader streamReader = new StreamReader(pfad))
                 {
                     var überschrift = streamReader.ReadLine();
 
@@ -53,20 +50,11 @@ namespace camt2smtp
                                         regel.KategorienListe = x[0].Split(';').ToList();
                                         regel.KriterienListe = x[1].Split(';');
                                         regel.Betrag = x[2] == "" ? 0 : Convert.ToDecimal(x[2]);
-                                        //regel.Kategorien = x[0];
-                                        //regel.getSortierkriterium();
-                                        //regel.Kundenreferenz = x[1];
-                                        //regel.Mandatsreferenz = x[2];
-                                        //regel.Verwendungszweck = x[3];
-                                        //regel.Iban = x[4];
-                                        //regel.BeguenstigterZahlungspflichtiger = x[5];
-
-                                        //regel.Buchungstext = x[7];
                                         this.Add(regel);
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.WriteLine("Fehler beim Einlesen der Regeln aus " + datei + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
+                                        Console.WriteLine("Fehler beim Einlesen der Regeln aus " + pfad + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
                                         Console.ReadLine();
                                     }
                                 }

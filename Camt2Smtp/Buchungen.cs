@@ -33,7 +33,6 @@ namespace camt2smtp
                 {
                     var überschrift = reader.ReadLine();
                     int i = 1;
-                    
                     while (true)
                     {
                         i++;
@@ -69,9 +68,8 @@ namespace camt2smtp
                                     buchung.Betrag = Convert.ToDecimal(x[15]);
                                     buchung.Währung = x[16];
                                     buchung.Info = x[17];
-                                    buchung.Vertragsname = x[18];
-
-                                    buchungenUnsortiert.Add(buchung);
+                                    buchung.Kategorien = x[18];
+                                    this.Add(buchung);
                                 }
                                 catch (Exception ex)
                                 {
@@ -88,8 +86,6 @@ namespace camt2smtp
                         {
                         }
                     }
-                    this.AddRange(buchungenUnsortiert.OrderBy(x => x.Buchungstag));
-                    Console.WriteLine("Protokollierte ausgeführte Buchungen: " + this.Count);
                 }
             }
             catch (Exception ex)

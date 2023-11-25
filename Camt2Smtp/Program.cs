@@ -22,7 +22,7 @@ namespace camt2smtp
         public static string SmtpPort = "";
         public static string Camt = "";
         public static SmtpClient SmtpClient;
-        public static Buchungen IstBuchungen;
+        public static Buchungen ProtokollierteBuchungen;
         public static Buchungen SollBuchungen;
 
         static void Main(string[] args)
@@ -30,7 +30,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
-                Console.WriteLine("Version 20231124" );
+                Console.WriteLine("Version 20231125" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
@@ -43,8 +43,15 @@ namespace camt2smtp
 
                 List<string> camtDateien = PrüfeDateien(Benutzer, Pfad, Camt);
 
-                IstBuchungen = new Buchungen(Pfad + @"\protokoll.csv");
-                var regeln = new Regeln(Pfad);
+                ProtokollierteBuchungen = new Buchungen(Pfad + @"\protokoll.csv");
+
+                var regelpfad = Pfad + "\\" + (from f in new DirectoryInfo(Pfad).GetFiles()
+                                               where f.Name.Contains("regeln.")
+                                               orderby f.LastWriteTime descending
+                                               select f).First().ToString();
+
+                var regeln = new Regeln(regelpfad);
+
                 SollBuchungen = new Buchungen(camtDateien, regeln);
 
                 Sicherung(Pfad, SmtpClient, SmtpUser);
@@ -55,14 +62,13 @@ namespace camt2smtp
                 {
                     // Nur wenn eine Buchung noch nicht durchgeführt wurde... 
 
-                    if (!(from protokollierteBuchung in IstBuchungen
+                    if (!(from protokollierteBuchung in ProtokollierteBuchungen
                           where protokollierteBuchung.Verwendungszweck == buchung.Verwendungszweck
                           where protokollierteBuchung.Buchungstag.Date == buchung.Buchungstag.Date
                           where protokollierteBuchung.BeguenstigterZahlungspflichtiger == buchung.BeguenstigterZahlungspflichtiger
-                          
                           select protokollierteBuchung).Any())
                     {
-                        offeneKontobewegungen += buchung.GetRegel(Benutzer, Pfad, IstBuchungen, SollBuchungen, SmtpClient, SmtpUser);
+                        offeneKontobewegungen += buchung.GetRegel(regelpfad, Benutzer, Pfad, ProtokollierteBuchungen, SollBuchungen, SmtpClient, SmtpUser);
                     }
                 }
 
@@ -72,7 +78,7 @@ namespace camt2smtp
                 }
 
                 Console.WriteLine("Das Programm schließt in 10 Sekunden.");
-                Thread.Sleep(10000);
+                Thread.Sleep(20000);
             }
             catch (Exception ex)
             {
@@ -243,7 +249,7 @@ namespace camt2smtp
             try
             {
                 string betreff = "camt2smtp-Meldung";
-                string body = "Der Datei " + Pfad + @"\regeln.csv wurde(n) folgende Zeile(n) hinzugefügt. Bitte ersetzen Sie die ????? durch eine oder mehrere kommagetrennte Kategorien. Wählen Sie die Eigenschaften so, dass Mails an diesen Empfänger direkt erkannt werden.</br></br>" + regelszeile;
+                string body = "Der Datei " + Pfad + @"\regeln.csv wurde(n) folgende Zeile(n) hinzugefügt. Bitte ersetzen Sie den Kommentar # durch eine oder mehrere kommagetrennte Kategorien. Wählen Sie die Eigenschaften so, dass Mails an diesen Empfänger direkt erkannt werden.</br></br>" + regelszeile;
 
                 MailMessage mm = new MailMessage(smtpUser, smtpUser, betreff, body)
                 {
