@@ -43,38 +43,41 @@ namespace camt2smtp
                         {
                             if (line != null)
                             {
-                                string pattern = @"""\s*;\s*""";
-
-                                string[] x = System.Text.RegularExpressions.Regex.Split(line.Substring(1, line.Length - 2), pattern);
-
-                                try
+                                if (!line.StartsWith("#"))
                                 {
-                                    buchung = new Buchung();
-                                    buchung.Zeitstempel = x[0];
-                                    buchung.Auftragskonto = x[1];
-                                    buchung.Buchungstag = DateTime.ParseExact(x[2].PadRight(10).Substring(0, 10), "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                                    buchung.Valutadatum = x[3] == "" ? new DateTime() : DateTime.ParseExact(x[2], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                                    buchung.Buchungstext = x[4];
-                                    buchung.Verwendungszweck = x[5];
-                                    buchung.GlaeubigerID = x[6];
-                                    buchung.Mandatsreferenz = x[7];
-                                    buchung.Kundenreferenz = x[8];
-                                    buchung.Sammlerreferenz = x[9];
-                                    buchung.LastschriftUrsprungsbetrag = x[10];
-                                    buchung.AuslagenersatzRuecklastschrift = x[11];
-                                    buchung.BeguenstigterZahlungspflichtiger = x[12];
-                                    buchung.Iban = x[13];
-                                    buchung.Bic = x[14];
-                                    buchung.Betrag = Convert.ToDecimal(x[15]);
-                                    buchung.Währung = x[16];
-                                    buchung.Info = x[17];
-                                    buchung.Kategorien = x[18];
-                                    this.Add(buchung);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Fehler in Zeile: " + i + " Fehlermeldung: " + ex.ToString());
-                                    break;
+                                    string pattern = @"""\s*;\s*""";
+
+                                    string[] x = System.Text.RegularExpressions.Regex.Split(line.Substring(1, line.Length - 2), pattern);
+
+                                    try
+                                    {
+                                        buchung = new Buchung();
+                                        buchung.Zeitstempel = x[0];
+                                        buchung.Auftragskonto = x[1];
+                                        buchung.Buchungstag = DateTime.ParseExact(x[2].PadRight(10).Substring(0, 10), "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                        buchung.Valutadatum = x[3] == "" ? new DateTime() : DateTime.ParseExact(x[2], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                        buchung.Buchungstext = x[4];
+                                        buchung.Verwendungszweck = x[5];
+                                        buchung.GlaeubigerID = x[6];
+                                        buchung.Mandatsreferenz = x[7];
+                                        buchung.Kundenreferenz = x[8];
+                                        buchung.Sammlerreferenz = x[9];
+                                        buchung.LastschriftUrsprungsbetrag = x[10];
+                                        buchung.AuslagenersatzRuecklastschrift = x[11];
+                                        buchung.BeguenstigterZahlungspflichtiger = x[12];
+                                        buchung.Iban = x[13];
+                                        buchung.Bic = x[14];
+                                        buchung.Betrag = Convert.ToDecimal(x[15]);
+                                        buchung.Währung = x[16];
+                                        buchung.Info = x[17];
+                                        buchung.Kategorien = x[18];
+                                        this.Add(buchung);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Fehler in Zeile: " + i + " Fehlermeldung: " + ex.ToString());
+                                        break;
+                                    }
                                 }
                             }
                             else

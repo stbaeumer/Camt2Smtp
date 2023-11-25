@@ -53,7 +53,8 @@ namespace camt2smtp
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
             string b = (Regeln[0] != null && Regeln[0].KategorienListe != null && Regeln[0].KategorienListe.Count() > 0 ? " [" + String.Join(",", Regeln[0].KategorienListe) + "] " :  " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | ") + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
-            string betreff = b.Substring(0, Math.Min(b.Length, 30)) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
+            string betreff = b.Substring(0, Math.Min(b.Length, 26
+                )) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
 
             var buchung = new Buchung();
