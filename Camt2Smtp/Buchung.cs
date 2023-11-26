@@ -4,6 +4,7 @@ using camt2smtp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -52,8 +53,8 @@ namespace camt2smtp
 
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
-            string b = (Regeln[0] != null && Regeln[0].KategorienListe != null && Regeln[0].KategorienListe.Count() > 0 ? " [" + String.Join(",", Regeln[0].KategorienListe) + "] " :  " " + Buchungstag.Year + "-" + Buchungstag.Month.ToString("00") + "-" + Buchungstag.Day.ToString("00") + " | ") + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
-            string betreff = b.Substring(0, Math.Min(b.Length, 26
+            string b = " [" + String.Join(",", Regeln[0].KategorienListe[0]) + "] " + Buchungstag.Year + "-" + Buchungstag.ToString("MMM", CultureInfo.InvariantCulture) + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
+            string betreff = b.Substring(0, Math.Min(b.Length, 100
                 )) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
 
@@ -81,7 +82,7 @@ namespace camt2smtp
             body += RenderDieseBuchung();
             body += BuchungenZuDiesenRegeln2List(protokolldateiBuchungen);
 
-            Console.WriteLine("Betreff: " + betreff.Replace(" €", " EUR"));
+            Console.WriteLine("Betreff: " + betreff.Replace(" €", " EUR").Substring(0,20));
 
             MailMessage mm = new MailMessage(smtpUser, smtpUser, betreff, body)
             {
@@ -227,47 +228,25 @@ namespace camt2smtp
                 // Wenn bis auf den Betrag alle Kriterien passen und mehr als eine Buchung
                 // infrage kommt,dann könnte eine Splitbuchung vorliegen
 
-                if (regeln.Count() > 1)
+                if (regeln.Sum(x => x.Betrag) == Betrag)
                 {
-                    //// Es muss geprüft werden, ob alle Beträge zusammen den Buchungsbetrag ergeben
-
-                    //if ((from r in regeln select r.Betrag).Sum() == Betrag)
-                    //{
-                    //    this.Regeln.Clear();
-                    //    this.Regeln.AddRange(regeln);
-                    //    SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
-                    //    return "";
-                    //}
-
-                    // Es wird geprüft, ob zwei Beträge zusammen den Buchungsbetrag ergeben.
-                    // Wenn ja, dann ist es eine Splitbuchung
-
-                    for (int i = 0; i < regeln.Count - 1; i++)
+                    foreach (var regel in regeln)
                     {
-                        if (regeln[i].Betrag + regeln[i + 1].Betrag == Betrag)
-                        {
-                            regeln[i].KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
-                            this.Regeln.Clear();                            
-                            this.Regeln.Add(regeln[i]);
-                            SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
-
-                            regeln[i + 1].KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
-                            this.Regeln.Clear();
-                            this.Regeln.Add(regeln[i + 1]);
-                            SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
-
-                            return "";
-                        }
+                        regel.KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
+                        this.Regeln.Clear();
+                        this.Regeln.Add(regel);
+                        SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     }
+                    return "";
                 }
+                
                 if (regeln.Count() == 1)
                 {
                     // Wenn nur ein Treffer erzielt wurde und nur die Krterien, aber nicht der
                     // Betrag stimmt
 
                     Regeln.Clear();
-                    
-                    
+                                        
                     Regeln.Add(regeln[0]);
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";

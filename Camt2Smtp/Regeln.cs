@@ -31,7 +31,7 @@ namespace camt2smtp
                 using (StreamReader streamReader = new StreamReader(pfad))
                 {
                     var überschrift = streamReader.ReadLine();
-
+                    
                     while (true)
                     {
                         Regel regel = new Regel();
@@ -43,19 +43,24 @@ namespace camt2smtp
                             {
                                 if (!line.StartsWith("#"))
                                 {
-                                    string[] x = line.Split('|');
+                                    if (line.Length > 0)
+                                    {
 
-                                    try
-                                    {
-                                        regel.KategorienListe = x[0].Split(';').ToList();
-                                        regel.KriterienListe = x[1].Split(';');
-                                        regel.Betrag = x[2] == "" ? 0 : Convert.ToDecimal(x[2]);
-                                        this.Add(regel);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine("Fehler beim Einlesen der Regeln aus " + pfad + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
-                                        Console.ReadLine();
+
+                                        string[] x = line.Split('|');
+
+                                        try
+                                        {
+                                            regel.KategorienListe = x[0].Split(';').ToList();
+                                            regel.KriterienListe = x[1].Split(';');
+                                            regel.Betrag = x[2] == "" ? 0 : Convert.ToDecimal(x[2]);
+                                            this.Add(regel);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine("Fehler beim Einlesen der Regeln aus " + pfad + " in Zeile " + line + ".\n" + regel.Verwendungszweck + ex.Message);
+                                            Console.ReadLine();
+                                        }
                                     }
                                 }
                             }
@@ -66,6 +71,7 @@ namespace camt2smtp
                         }
                         catch (Exception ex)
                         {
+                            throw ex;
                         }
                     }
                 }
