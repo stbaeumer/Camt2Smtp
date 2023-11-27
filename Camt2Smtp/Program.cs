@@ -77,6 +77,8 @@ namespace camt2smtp
                     SendeMail(Benutzer, offeneKontobewegungen, SmtpClient, SmtpUser);
                 }
 
+                Protokoll2Erstellen(Pfad + @"\protokoll.csv");
+
                 Console.WriteLine("Das Programm schließt in 10 Sekunden.");
                 Thread.Sleep(20000);
             }
@@ -87,6 +89,26 @@ namespace camt2smtp
                 Console.ReadKey();
                 Environment.Exit(0);
             }
+        }
+
+        private static void Protokoll2Erstellen(string pfad)
+        {
+            // Create the IEnumerable data source  
+            string[] lines = System.IO.File.ReadAllLines(pfad + @"\protokoll.csv");
+
+            // Create the query. Put field 2 first, then  
+            // reverse and combine fields 0 and 1 from the old field  
+            IEnumerable<string> query =
+                from line in lines
+                let x = line.Split(',')
+                orderby x[2]
+                select x[2] + ", " + (x[1] + " " + x[0]);
+
+            // Execute the query and write out the new file. Note that WriteAllLines  
+            // takes a string[], so ToArray is called on the query.  
+            System.IO.File.WriteAllLines(Pfad + @"\protokoll_sortiert.csv", query.ToArray());
+
+            Console.WriteLine("Protokoll_sortiert geschrieben.");            
         }
 
         private static SmtpClient BaueSmtpClient(string smtpUser, string smtpPassword, string smtpServer, string smtpPort)

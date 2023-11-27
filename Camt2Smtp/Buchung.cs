@@ -217,6 +217,7 @@ namespace camt2smtp
 
                     this.Regeln.Clear();
                     this.Regeln.Add(r);
+                    
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";
                 }
