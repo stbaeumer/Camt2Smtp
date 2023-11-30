@@ -77,7 +77,7 @@ namespace camt2smtp
                     SendeMail(Benutzer, offeneKontobewegungen, SmtpClient, SmtpUser);
                 }
 
-                Protokoll2Erstellen(Pfad + @"\protokoll.csv");
+                //Protokoll2Erstellen(Pfad + @"\protokoll.csv");
 
                 Console.WriteLine("Das Programm schließt in 10 Sekunden.");
                 Thread.Sleep(20000);

@@ -41,12 +41,10 @@ namespace camt2smtp
                         {
                             if (line != null)
                             {
-                                if (!line.StartsWith("#"))
+                                if (line.Length > 0)
                                 {
-                                    if (line.Length > 0)
+                                    if (!line.StartsWith("#"))
                                     {
-
-
                                         string[] x = line.Split('|');
 
                                         try

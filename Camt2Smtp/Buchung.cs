@@ -53,8 +53,8 @@ namespace camt2smtp
 
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
-            string b = " [" + String.Join(",", Regeln[0].KategorienListe[0]) + "] " + Buchungstag.Year + "-" + Buchungstag.ToString("MMM", CultureInfo.InvariantCulture) + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
-            string betreff = b.Substring(0, Math.Min(b.Length, 100
+            string b = " [" + Regeln[0].KategorienListe[0] + (Regeln[0].KategorienListe.Count() > 1 ? "," + Regeln[0].KategorienListe[1] : "") + "] " + Buchungstag.Year + "-" + Buchungstag.ToString("MMM", CultureInfo.InvariantCulture) + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
+            string betreff = b.Substring(0, Math.Min(b.Length, 120
                 )) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
 
@@ -82,7 +82,7 @@ namespace camt2smtp
             body += RenderDieseBuchung();
             body += BuchungenZuDiesenRegeln2List(protokolldateiBuchungen);
 
-            Console.WriteLine("Betreff: " + betreff.Replace(" €", " EUR").Substring(0,20));
+            Console.Write("Betreff: " + betreff.Replace(" €", " EUR").Substring(0,20) + "...");
 
             MailMessage mm = new MailMessage(smtpUser, smtpUser, betreff, body)
             {
@@ -95,6 +95,7 @@ namespace camt2smtp
             try
             {
                 smtpClient.Send(mm);
+                Console.WriteLine("gesendet.");
 
                 // Wenn der Versand erfolgreich war, wird der Datensatz protokolliert
                 
@@ -201,7 +202,7 @@ namespace camt2smtp
         {
             try
             {
-                Console.Write((this.BeguenstigterZahlungspflichtiger.Substring(0, Math.Min(20, this.BeguenstigterZahlungspflichtiger.Length)) + "|" + this.Verwendungszweck.Substring(0, Math.Min(50, this.Verwendungszweck.Length)) + " ...").PadRight(90, ' '));
+                Console.Write((this.BeguenstigterZahlungspflichtiger.Substring(0, Math.Min(20, this.BeguenstigterZahlungspflichtiger.Length)) + "|" + this.Verwendungszweck.Substring(0, Math.Min(25, this.Verwendungszweck.Length)) + " ...").PadRight(29, ' '));
 
                 // Wenn es in allen Regeln genau einen Volltreffer gibt, werden alle anderen Regeln gelöscht.
 
@@ -243,7 +244,7 @@ namespace camt2smtp
                 
                 if (regeln.Count() == 1)
                 {
-                    // Wenn nur ein Treffer erzielt wurde und nur die Krterien, aber nicht der
+                    // Wenn nur ein Treffer erzielt wurde und nur die Kriterien, aber nicht der
                     // Betrag stimmt
 
                     Regeln.Clear();
