@@ -30,7 +30,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
-                Console.WriteLine("Version 20231125" );
+                Console.WriteLine("Version 20231201" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2023.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");
@@ -54,7 +54,7 @@ namespace camt2smtp
 
                 SollBuchungen = new Buchungen(camtDateien, regeln);
 
-                Sicherung(Pfad, SmtpClient, SmtpUser);
+                Console.WriteLine("----------------------------------");
 
                 var offeneKontobewegungen = "";
 
@@ -77,7 +77,7 @@ namespace camt2smtp
                     SendeMail(Benutzer, offeneKontobewegungen, SmtpClient, SmtpUser);
                 }
 
-                //Protokoll2Erstellen(Pfad + @"\protokoll.csv");
+                Sicherung(Pfad, SmtpClient, SmtpUser);
 
                 Console.WriteLine("Das Programm schließt in 10 Sekunden.");
                 Thread.Sleep(20000);
@@ -257,8 +257,7 @@ namespace camt2smtp
                 if (DateTime.Now.Day == 1)
                 {
                     ProtokollSichern(targetPath, client, smtpUser);
-                }
-                Console.WriteLine("----------------------------------");
+                }                
             }
             catch (Exception ex)
             {
@@ -315,11 +314,12 @@ namespace camt2smtp
 
                 foreach (var datei in d.GetFiles("*.csv"))
                 {
-                    mailMessage.Attachments.Add(new Attachment(pfad + datei.Name));
+                    mailMessage.Attachments.Add(new Attachment(pfad + "\\" + datei.Name));
                 }
 
                 client.Send(mailMessage);
 
+                Console.WriteLine("Die Mail zur monatlichen Sicherung wurde verschickt.");
             }
             catch (Exception ex)
             {

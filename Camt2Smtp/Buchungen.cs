@@ -199,7 +199,11 @@ namespace camt2smtp
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Soll-Buchungen " + camtDatei + ": " + zähler);
+                                    if (zähler > 0)
+                                    {
+                                        Console.WriteLine("Soll-Buchungen " + camtDatei + ": " + zähler);
+                                    }
+                                    
                                     break;
                                 }
                             }

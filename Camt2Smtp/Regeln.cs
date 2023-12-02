@@ -80,6 +80,7 @@ namespace camt2smtp
             {
                 throw ex;
             }
+            Console.WriteLine("Gefundene Regeln: " + this.Count()) ;
         }
 
         public Regeln()
