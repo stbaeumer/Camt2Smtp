@@ -53,7 +53,7 @@ namespace camt2smtp
 
         internal void SendeMail(string benutzer, string protokolldatei, Buchungen protokolldateiBuchungen, SmtpClient smtpClient, string smtpUser)
         {
-            string b = " [" + Regeln[0].KategorienListe[0] + (Regeln[0].KategorienListe.Count() > 1 ? "," + Regeln[0].KategorienListe[1] : "") + "] " + Buchungstag.Year + "-" + Buchungstag.ToString("MMM", CultureInfo.InvariantCulture) + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
+            string b = " [" + Regeln[0].KategorienListe[0] + (Regeln[0].KategorienListe.Count() > 1 ? "," + Regeln[0].KategorienListe[1] : "") + (Regeln[0].KategorienListe.Count() > 2 ? "," + Regeln[0].KategorienListe[2] : "") + "] " + Buchungstag.Year + "-" + Buchungstag.ToString("MMM", CultureInfo.InvariantCulture) + "-" + Buchungstag.Day.ToString("00") + " | " + ((BeguenstigterZahlungspflichtiger == null || BeguenstigterZahlungspflichtiger == "" ? "" : BeguenstigterZahlungspflichtiger + " | " + Verwendungszweck));
             string betreff = b.Substring(0, Math.Min(b.Length, 120
                 )) + " | " + string.Format("{0:#.00}", Regeln[0].Betrag != 0 ? Regeln[0].Betrag : Betrag) + " €";
             string body = this.Auftragskonto;
