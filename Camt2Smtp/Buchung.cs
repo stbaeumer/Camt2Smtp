@@ -230,6 +230,7 @@ namespace camt2smtp
                 // Wenn bis auf den Betrag alle Kriterien passen und mehr als eine Buchung
                 // infrage kommt,dann könnte eine Splitbuchung vorliegen
 
+                // zuerst wird geprüft, ob alle zusammen passen
                 if (regeln.Sum(x => x.Betrag) == Betrag)
                 {
                     foreach (var regel in regeln)
@@ -241,14 +242,33 @@ namespace camt2smtp
                     }
                     return "";
                 }
-                
+
+
+                // dann wird geprüft, ob nur zwei verschiedene Elemente matchen.
+                for (int i = 0; i < regeln.Count - 1; i++)
+                {
+                    for (int j = i + 1; j < regeln.Count; j++)
+                    {
+                        if (regeln[i].Betrag + regeln[j].Betrag == Betrag)
+                        {
+                            foreach (var regel in new Regeln() { regeln[i], regeln[j] })
+                            {
+                                regel.KategorienListe.Add("Splitbuchung-" + Math.Abs(Betrag));
+                                this.Regeln.Clear();
+                                this.Regeln.Add(regel);
+                                SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
+                            }
+                            return "";
+                        }
+                    }
+                }
+
                 if (regeln.Count() == 1)
                 {
                     // Wenn nur ein Treffer erzielt wurde und nur die Kriterien, aber nicht der
                     // Betrag stimmt
 
-                    Regeln.Clear();
-                                        
+                    Regeln.Clear();                                        
                     Regeln.Add(regeln[0]);
                     SendeMail(benutzer, pfad + @"\protokoll.csv", protokollierteBuchungen, smtpClient, smtpUser);
                     return "";
