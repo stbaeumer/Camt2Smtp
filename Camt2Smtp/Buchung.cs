@@ -98,8 +98,7 @@ namespace camt2smtp
                 Console.WriteLine("gesendet.");
 
                 // Wenn der Versand erfolgreich war, wird der Datensatz protokolliert
-                
-                
+                                
                 var regeln = String.Join(",", Regeln[0].KategorienListe.ToArray());
 
                 // Bei Splitbuchungen wird der Betrag aus der Regel genommen.
@@ -140,7 +139,20 @@ namespace camt2smtp
 
             foreach (var ver in Regeln[0].KategorienListe)
             {
-                z += "<tr><td><b>" + ver + ":</b></td></tr>";
+                var summeAlleJahre = (from p in protokolldateiBuchungen
+                                      where p.Kategorien != null
+                                      where p.Kategorien != ""
+                                      where p.Kategorien.ToLower().Split(',').Contains(ver.ToLower())
+                                      select p.Betrag).Sum();
+
+                var anzahlAlleJahre = (from p in protokolldateiBuchungen
+                                       where p.Kategorien != null
+                                       where p.Kategorien != ""
+                                       where p.Kategorien.ToLower().Split(',').Contains(ver.ToLower())
+                                       select p.Betrag).Count();
+
+
+                z += "<tr><td><b>" + ver + ":</b></td><td>" + anzahlAlleJahre + "x</td><td>" + string.Format("{0:0.00}", summeAlleJahre) + " EUR</td></tr>";
 
                 for (int year = DateTime.Now.AddYears(-2).Year; year <= DateTime.Now.Year; year++)
                 {
