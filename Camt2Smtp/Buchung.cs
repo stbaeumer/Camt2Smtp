@@ -290,6 +290,13 @@ namespace camt2smtp
                 //todo: Nur wenn die Zeile noch nicht existiert, dann hinzufügen
 
                 File.AppendAllText(regeldatei, Environment.NewLine + "#" + "|" + this.Zeile + "|");
+                if (regeln.Count > 1)
+                {
+                    foreach (var item in regeln)
+                    {
+                        File.AppendAllText(regeldatei, Environment.NewLine + "  #  keine eindeutige Zuordnung: " + String.Join(", ", item.KategorienListe.ToArray()) + ": " + regeln.Count + " Treffer |");
+                    }
+                }
                 return "#" + "|"+ this.Zeile + "|</br>";
             }
             catch (Exception e)
