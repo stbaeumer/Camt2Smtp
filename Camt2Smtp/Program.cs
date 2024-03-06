@@ -30,7 +30,7 @@ namespace camt2smtp
             try
             {
                 Console.WriteLine("camt2smtp");
-                Console.WriteLine("Version 20240211" );
+                Console.WriteLine("Version 20240306" );
                 Console.WriteLine("Published under the terms of GPLv3 Stefan Bäumer 2024.");
                 Console.WriteLine("======================================================");
                 Console.WriteLine("");

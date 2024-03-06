@@ -294,7 +294,7 @@ namespace camt2smtp
                 {
                     foreach (var item in regeln)
                     {
-                        File.AppendAllText(regeldatei, Environment.NewLine + "  #  keine eindeutige Zuordnung: " + String.Join(", ", item.KategorienListe.ToArray()) + ": " + regeln.Count + " Treffer |");
+                        File.AppendAllText(regeldatei, Environment.NewLine + "# ##  keine eindeutige Zuordnung: " + String.Join(", ", item.KategorienListe.ToArray()) + " Kriterienliste: " + String.Join(", ", item.KriterienListe.ToArray()) + ": " + regeln.Count + " Treffer |");
                     }
                 }
                 return "#" + "|"+ this.Zeile + "|</br>";

@@ -17,8 +17,6 @@ namespace camt2smtp
         {
             try
             {
-                
-
                 if (pfad == null)
                 {
                     string kopfzeile = "\"Name\";\"Kundenreferenz\";\"Mandatsreferenz\";\"IndikatorVerwendungszweck\";\"IndikatorIban\";\"IndikatorBeguenstigter\";\"Betrag\"" + Environment.NewLine;
